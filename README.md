@@ -1,70 +1,62 @@
-## Docker image for Proxmox Backup Server (https://pbs.proxmox.com).  
+## Unofficial docker image for Proxmox Backup Server (https://pbs.proxmox.com)
 
-Base on  
-1. [Container Debian](https://hub.docker.com/_/debian)  
-2. [supsy repo](https://gitlab.com/supsy/docker/proxmoxbackupserver)  
+> Based on https://github.com/jeanfrantiesco/proxmox-backup-server⁠
 
-## First, create the directories and set the permissions.  
+## First, create the directories and set the permissions.
 
-The backup directory  
-``` 
-mkdir -p /path/to/backup
-chown 34:65534 /path/to/backup
+The backup directory
+```
+mkdir -p  /data/pbs/backup
+chown 34:65534  /data/pbs/backup
 
-``` 
-The config directory  
-``` 
-mkdir -p /path/to/config
-mkdir -p /path/to/log #(optional)
-chown 34:34 /path/to/config
-chmod 700 /path/to/config
-
-``` 
-
-## Run with:  
-``` 
-docker run -it \
--p 8007:8007 \
---tmpfs /run \
--v /path/to/backup:/backup \
--v /path/to/config:/etc/proxmox-backup \
--v /path/to/log:/var/log/proxmox-backup \ #(optional)
--e ADMIN_PASSWORD=*ADMIN_USER_PASSWORD* \
--e TZ=Europe/Rome \
-jeanfrantiesco/proxmox-backup-server
+```
+The config directory
+```
+mkdir -p /data/pbs/config /data/pbs/log /data/pbs/metadata
+chown -R 34:34 /data/pbs
+chmod -R 700 /data/pbs/config
 
 ```
 
-## Or with docker-compose:  
 
-``` 
+## Run with docker compose:
+
+```
+services:
   pbs:
-    image: jeanfrantiesco/proxmox-backup-server
+    container_name: pbs
+    hostname: pbs
+    image: plazotronik/pbs:latest
     restart: always
     ports:
       - 8007:8007
     tmpfs:
       - /run
     environment:
-      TZ: Europe/Rome
-      ADMIN_PASSWORD: *ADMIN_USER_PASSWORD*
+      TZ: Europe/Moscow
+      ADMIN_PASSWORD: SurepPuperPassword12345
     volumes:
-      - /path/to/backup:/backup
-      - /path/to/config:/etc/proxmox-backup
-      - /path/to/log:/var/log/proxmox-backup #(optional)
+      - /data/pbs/backup:/backup
+      - /data/pbs/metadata:/var/lib/proxmox-backup
+      - /data/pbs/config:/etc/proxmox-backup
+      - /data/pbs/log:/var/log/proxmox-backup
+      - /etc/timezone:/etc/timezone:ro  #(to be sure)
+      - /etc/localtime:/etc/localtime:ro  #(to be sure)
 
-``` 
-After start the webinterface is available under https://docker:8007  
+```
+After start the webinterface is available under https://docker:8007
 
-Username: admin.  
-Realm: **Proxmox Backup authentication server** (Must be explicitly changed on first login).  
-Password: asDefinedViaEnvironment  
+_Username_: `admin`
 
-Hint The user admin permissions are limited to reflect docker limitations.  
-The ADMIN_PASSWORD is only needed for first time initialization  
+_Realm_: **Proxmox Backup authentication server** (Must be explicitly changed on first login).
 
-## Add Datastore  
-Click on `Add Datastore`  
-On Name: `<You-Datastore-name>`  
-On Backing Path: `/backup`  
-Place the rest according to your needs.  
+_Password_: asDefinedViaEnvironment
+
+Hint The user admin permissions are limited to reflect docker limitations.
+The ADMIN_PASSWORD is only needed for first time initialization
+
+## Add Datastore
+Click on `Add Datastore`
+On Name: `<You-Datastore-name>`
+On Backing Path: `/backup`
+Place the rest according to your needs.
