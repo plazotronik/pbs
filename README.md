@@ -40,7 +40,6 @@ services:
       - /data/pbs/metadata:/var/lib/proxmox-backup
       - /data/pbs/config:/etc/proxmox-backup
       - /data/pbs/log:/var/log/proxmox-backup
-      - /etc/timezone:/etc/timezone:ro  #(to be sure)
       - /etc/localtime:/etc/localtime:ro  #(to be sure)
 
 ```
