@@ -48,8 +48,8 @@ RUN sed -i 's/^#//g' /etc/apt/sources.list.d/proxmox.sources && \
 # https://github.com/tianon/gosu/releases
 RUN set -eux; \
     apt-get update; \
+    apt-get upgrade -y; \
     apt-get install -y gosu; \
-    rm -rf /var/lib/apt/lists/*; \
     gosu nobody true
 
 #Cleanup
