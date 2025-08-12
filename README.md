@@ -1,6 +1,8 @@
 ## Unofficial docker image for Proxmox Backup Server (https://pbs.proxmox.com)
 
-> Based on https://github.com/jeanfrantiesco/proxmox-backup-server⁠
+> x64 based on https://github.com/jeanfrantiesco/proxmox-backup-server
+> arm64 based on https://github.com/dexogen/pipbs
+
 
 ## First, create the directories and set the permissions.
 
