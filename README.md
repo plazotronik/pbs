@@ -46,17 +46,15 @@ services:
 ```
 After start the webinterface is available under https://docker:8007
 
-_Username_: `admin`
-
-_Realm_: **Proxmox Backup authentication server** (Must be explicitly changed on first login).
-
+_Username_: `admin` \
+_Realm_: **Proxmox Backup authentication server** (Must be explicitly changed on first login). \
 _Password_: asDefinedViaEnvironment
 
-Hint The user admin permissions are limited to reflect docker limitations.
+Hint The user admin permissions are limited to reflect docker limitations. \
 The ADMIN_PASSWORD is only needed for first time initialization
 
 ## Add Datastore
-Click on `Add Datastore`
-On Name: `<You-Datastore-name>`
-On Backing Path: `/backup`
+Click on `Add Datastore` \
+On Name: `<You-Datastore-name>` \
+On Backing Path: `/backup` \
 Place the rest according to your needs.
