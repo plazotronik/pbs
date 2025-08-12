@@ -1,4 +1,4 @@
-FROM debian:trixie AS builder
+FROM debian:trixie-slim AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Europe/Moscow
 
@@ -23,6 +23,7 @@ EOF
 RUN wget https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg -O /etc/apt/trusted.gpg.d/proxmox-release-trixie.gpg && \
     apt-get update && \
     apt-get install -y \
+    --no-install-recommends \
     proxmox-backup-server \
     proxmox-backup-client \
     proxmox-backup-docs \
