@@ -4,17 +4,17 @@
 
 ## First, create the directories and set the permissions.
 
-The backup directory
-```
-mkdir -p  /data/pbs/backup
-chown 34:65534  /data/pbs/backup
-
-```
 The config directory
 ```
 mkdir -p /data/pbs/config /data/pbs/log /data/pbs/metadata
 chown -R 34:34 /data/pbs
 chmod -R 700 /data/pbs/config
+
+```
+The backup directory
+```
+mkdir -p  /data/pbs/backup
+chown 34:65534  /data/pbs/backup
 
 ```
 
