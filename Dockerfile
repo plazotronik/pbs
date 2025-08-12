@@ -46,10 +46,7 @@ RUN sed -i 's/^#//g' /etc/apt/sources.list.d/proxmox.sources && \
 
 # grab gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
-RUN set -eux; \
-    apt-get update; \
-    apt-get upgrade -y; \
-    apt-get install -y gosu; \
+RUN apt-get install -y gosu; \
     gosu nobody true
 
 #Cleanup
