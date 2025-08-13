@@ -1,5 +1,15 @@
 ## Unofficial docker image for Proxmox Backup Server (https://pbs.proxmox.com)
 
+
+![amd64](https://img.shields.io/badge/architecture-arm64-cc)
+![arm64](https://img.shields.io/badge/architecture-amd64-5bd)
+![GitHub last commit](https://img.shields.io/github/last-commit/plazotronik/pbs)
+![Docker Tag](https://img.shields.io/docker/v/plazotronik/pbs)
+
+[![jeanfrantiesco](https://img.shields.io/badge/jeanfrantiesco-proxmox--backup--server-orange.svg)](https://github.com/jeanfrantiesco/proxmox-backup-server)
+[![dexogen](https://img.shields.io/badge/dexogen-pipbs-yellow.svg)](https://github.com/dexogen/pipbs)
+
+
 > x64 based on https://github.com/jeanfrantiesco/proxmox-backup-server \
 > arm64 based on https://github.com/dexogen/pipbs
 
