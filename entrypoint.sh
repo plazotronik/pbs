@@ -47,7 +47,7 @@ docker_setup_pbs() {
 docker_verify_minimum_env
 
 # Start api first in background
-/usr/lib/x86_64-linux-gnu/proxmox-backup/proxmox-backup-api &
+/usr/lib/$(uname -m)-linux-gnu/proxmox-backup/proxmox-backup-api &
 sleep 10
 
 docker_setup_env
@@ -57,4 +57,4 @@ if [ -z "$USERS_ALREADY_EXISTS" ]; then
     docker_setup_pbs
 fi
 
-exec gosu backup /usr/lib/x86_64-linux-gnu/proxmox-backup/proxmox-backup-proxy "$@"
+exec gosu backup /usr/lib/$(uname -m)-linux-gnu/proxmox-backup/proxmox-backup-proxy "$@"
