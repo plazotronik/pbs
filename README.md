@@ -43,7 +43,7 @@ services:
     ports:
       - 8007:8007
     tmpfs:
-      - /run/proxmox-backup
+      - /run
     environment:
       TZ: Europe/Moscow
       ADMIN_PASSWORD: SurepPuperPassword12345
