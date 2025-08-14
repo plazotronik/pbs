@@ -34,14 +34,7 @@ RUN apt-get update && \
     pve-xtermjs \
     zfsutils-linux
 
-RUN cat <<EOF > /etc/apt/sources.list.d/pbs-enterprise.sources
-Types: deb
-URIs: https://enterprise.proxmox.com/debian/pbs
-Suites: trixie
-Components: pbs-enterprise
-Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
-Enabled: false
-EOF
+RUN echo '' > /etc/apt/sources.list.d/pbs-enterprise.sources
 
 # grab gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
