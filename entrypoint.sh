@@ -57,4 +57,6 @@ if [ -z "$USERS_ALREADY_EXISTS" ]; then
     docker_setup_pbs
 fi
 
+echo $TZ > /etc/timezone
+
 exec gosu backup /usr/lib/$(uname -m)-linux-gnu/proxmox-backup/proxmox-backup-proxy "$@"
