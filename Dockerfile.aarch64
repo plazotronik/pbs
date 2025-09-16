@@ -15,7 +15,7 @@ RUN apt -qq modernize-sources -y
 RUN cat <<EOF > /etc/apt/sources.list.d/pipbs.sources
 Types: deb
 URIs: https://dexogen.github.io/pipbs/
-Suites: bookworm
+Suites: trixie
 Components: main
 Signed-By: /etc/apt/trusted.gpg.d/pipbs.gpg
 EOF
