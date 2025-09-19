@@ -1,6 +1,24 @@
-FROM debian:trixie-slim AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Europe/Moscow
+
+
+FROM debian:trixie-slim AS builder
+ARG DEBIAN_FRONTEND
+ARG TZ
+
+RUN apt-get -qq update -y && \
+    apt-get -qq dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold" && \
+    apt-get -qq install -y --no-install-recommends \
+    git curl dpkg-dev ca-certificates
+
+RUN git clone -b main --depth 1 --single-branch https://github.com/wofferl/proxmox-backup-arm64 && \
+    cd proxmox-backup-arm64 && \
+    ./build.sh download
+
+
+FROM debian:trixie-slim AS stage
+ARG DEBIAN_FRONTEND
+ARG TZ
 
 # Install dependencies
 RUN apt-get -qq update -y && \
@@ -12,27 +30,30 @@ RUN apt-get -qq update -y && \
 # add repository and install modules
 RUN apt -qq modernize-sources -y
 
-RUN cat <<EOF > /etc/apt/sources.list.d/pipbs.sources
-Types: deb
-URIs: https://dexogen.github.io/pipbs/
-Suites: trixie
-Components: main
-Signed-By: /etc/apt/trusted.gpg.d/pipbs.gpg
-EOF
+# RUN cat <<EOF > /etc/apt/sources.list.d/pipbs.sources
+# Types: deb
+# URIs: https://dexogen.github.io/pipbs/
+# Suites: trixie
+# Components: main
+# Signed-By: /etc/apt/trusted.gpg.d/pipbs.gpg
+# EOF
 
-RUN sed -i '/Components:/s/main$/main contrib/g' /etc/apt/sources.list.d/debian.sources && \
-    curl -fsSL https://dexogen.github.io/pipbs/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/pipbs.gpg
+RUN sed -i '/Components:/s/main$/main contrib/g' /etc/apt/sources.list.d/debian.sources
+# && \
+#     curl -fsSL https://dexogen.github.io/pipbs/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/pipbs.gpg
 
 RUN apt-get update && \
     apt-get install -y \
     --no-install-recommends \
-    proxmox-backup-server \
-    proxmox-backup-client \
-    proxmox-backup-docs \
-    proxmox-widget-toolkit \
-    proxmox-backup-file-restore \
-    pve-xtermjs \
     zfsutils-linux
+
+COPY --from=builder /proxmox-backup-arm64/packages /tmp/packages
+
+# WORKDIR /opt
+
+#RUN dpkg -i *.deb
+RUN cd  /tmp/packages && \
+    apt-get install -y --no-install-recommends ./*.deb
 
 RUN echo '' > /etc/apt/sources.list.d/pbs-enterprise.sources
 
@@ -47,14 +68,15 @@ RUN set -eux; \
 #Cleanup
 RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     -o APT::AutoRemove::SuggestsImportant=false $BUILD_DEPS && \
-    rm -r /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/*
 
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 
 FROM scratch AS release
-COPY --from=builder / /
+COPY --from=stage / /
 
 VOLUME /backup
 EXPOSE 8007
