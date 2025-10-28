@@ -1,5 +1,6 @@
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Europe/Moscow
+ARG PBS_VERSION=latest
 
 
 FROM debian:trixie-slim AS builder
@@ -9,11 +10,18 @@ ARG TZ
 RUN apt-get -qq update -y && \
     apt-get -qq dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold" && \
     apt-get -qq install -y --no-install-recommends \
-    git curl dpkg-dev ca-certificates
+    git curl dpkg-dev ca-certificates jq
 
-RUN git clone -b main --depth 1 --single-branch https://github.com/wofferl/proxmox-backup-arm64 && \
+ARG PBS_VERSION
+RUN if expr "$PBS_VERSION" : '[0-9.-][0-9.-]*' > /dev/null; \
+    then export TAG=$(curl -s -H 'Accept: application/vnd.github+json' \
+    https://api.github.com/repos/wofferl/proxmox-backup-arm64/tags | jq -r '.[].name' | grep ${PBS_VERSION} | head -n1); \
+    else export TAG=$(curl -s -H 'Accept: application/vnd.github+json' \
+    https://api.github.com/repos/wofferl/proxmox-backup-arm64/tags | jq -r '.[].name' | head -n1); \
+    fi && \
+    git clone -b ${TAG} --depth 1 --single-branch https://github.com/wofferl/proxmox-backup-arm64 && \
     cd proxmox-backup-arm64 && \
-    ./build.sh download
+    ./build.sh download=${TAG}
 
 
 FROM debian:trixie-slim AS stage

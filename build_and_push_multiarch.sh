@@ -22,25 +22,30 @@ rm -rf "$WORKDIR"
 git clone --depth=1 "$REPO_URL" "$WORKDIR"
 cd "$WORKDIR"
 
+
+# ==== BUILD ARM64 ====
+docker buildx build \
+  --build-arg PBS_VERSION=${VERSION_FULL} \
+  --platform linux/arm64/v8 \
+  --provenance=false \
+  --sbom=false \
+  --no-cache \
+  -f Dockerfile.aarch64 \
+  -t docker.io/${IMAGE_NAME}:${VERSION_FULL}-arm64 \
+  --push \
+  .
+
 # ==== BUILD AMD64 ====
 docker buildx build \
   --platform linux/amd64 \
   --provenance=false \
   --sbom=false \
+  --no-cache \
   -f Dockerfile \
   -t docker.io/${IMAGE_NAME}:${VERSION_FULL}-amd64 \
   --push \
   .
 
-# ==== BUILD ARM64 ====
-docker buildx build \
-  --platform linux/arm64/v8 \
-  --provenance=false \
-  --sbom=false \
-  -f Dockerfile.aarch64 \
-  -t docker.io/${IMAGE_NAME}:${VERSION_FULL}-arm64 \
-  --push \
-  .
 
 # ==== CREATE AND PUSH MANIFESTS ====
 for TAG in "${TAGS[@]}"; do
