@@ -35,20 +35,9 @@ RUN apt-get -qq update -y && \
     less netcat-openbsd iputils-ping iputils-tracepath net-tools \
     curl ca-certificates nano apt-utils dstat ifupdown2 gnupg
 
-# add repository and install modules
+# configure repository and install modules
 RUN apt -qq modernize-sources -y
-
-# RUN cat <<EOF > /etc/apt/sources.list.d/pipbs.sources
-# Types: deb
-# URIs: https://dexogen.github.io/pipbs/
-# Suites: trixie
-# Components: main
-# Signed-By: /etc/apt/trusted.gpg.d/pipbs.gpg
-# EOF
-
 RUN sed -i '/Components:/s/main$/main contrib/g' /etc/apt/sources.list.d/debian.sources
-# && \
-#     curl -fsSL https://dexogen.github.io/pipbs/gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/pipbs.gpg
 
 RUN apt-get update && \
     apt-get install -y \
@@ -57,9 +46,6 @@ RUN apt-get update && \
 
 COPY --from=builder /proxmox-backup-arm64/packages /tmp/packages
 
-# WORKDIR /opt
-
-#RUN dpkg -i *.deb
 RUN cd  /tmp/packages && \
     apt-get install -y --no-install-recommends ./*.deb
 
