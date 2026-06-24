@@ -37,21 +37,70 @@ docker_verify_minimum_env() {
   fi
 }
 
-pbs_start_fake_journald() {
-  mkdir -p /run/systemd/journal
+# Fix postfix
+docker_setup_mailer() {
+  # Intercept Postfix sendmail without removing Postfix or breaking PBS dependencies.
+  if [ ! -e /usr/sbin/sendmail.distrib ]; then
+    dpkg-divert --local --rename --add /usr/sbin/sendmail >/dev/null
+  fi
 
-  rm -f /run/systemd/journal/socket
+  cat >/usr/sbin/sendmail <<'EOF'
+#!/bin/sh
+if [ -s /etc/msmtprc ]; then
+  exec /usr/bin/msmtp --read-envelope-from --read-recipients "$@"
+fi
 
-  socat -u UNIX-RECVFROM:/run/systemd/journal/socket,fork STDOUT &
-  socat_pid="$!"
+cat >/dev/null
+exit 0
+EOF
 
-  for i in $(seq 1 50); do
-    if [ -S /run/systemd/journal/socket ]; then
-      chmod 666 /run/systemd/journal/socket
-      return 0
+  chmod +x /usr/sbin/sendmail
+
+  # The user has mounted a ready-made /etc/msmtprc — leave it alone.
+  if [ -s /etc/msmtprc ]; then
+    chmod 600 /etc/msmtprc || true
+    return 0
+  fi
+
+  # SMTP is not configured — the sendmail wrapper will be a no-op.
+  [ -n "${SMTP_HOST:-}" ] || return 0
+
+  SMTP_PORT="${SMTP_PORT:-587}"
+  SMTP_FROM="${SMTP_FROM:-pbs@localhost}"
+  SMTP_TLS="${SMTP_TLS:-on}"
+  SMTP_AUTH="${SMTP_AUTH:-off}"
+  SMTP_USER="${SMTP_USER:-}"
+
+  {
+    echo "defaults"
+    echo "tls ${SMTP_TLS}"
+    echo "tls_trust_file /etc/ssl/certs/ca-certificates.crt"
+    echo "logfile /proc/1/fd/1"
+    echo
+    echo "account default"
+    echo "host ${SMTP_HOST}"
+    echo "port ${SMTP_PORT}"
+    echo "from ${SMTP_FROM}"
+
+    if [ "${SMTP_AUTH}" = "on" ]; then
+      [ -n "${SMTP_USER}" ] || pbs_error "SMTP_AUTH=on but SMTP_USER is not set"
+
+      echo "auth on"
+      echo "user ${SMTP_USER}"
+
+      if [ -r /run/secrets/SMTP_PASSWORD ]; then
+        echo "passwordeval cat /run/secrets/SMTP_PASSWORD"
+      elif [ -n "${SMTP_PASSWORD:-}" ]; then
+        echo "password ${SMTP_PASSWORD}"
+      else
+        pbs_error "SMTP_AUTH=on but neither SMTP_PASSWORD nor /run/secrets/SMTP_PASSWORD is set"
+      fi
+    else
+      echo "auth off"
     fi
-    sleep 0.1
-  done
+  } >/etc/msmtprc
+
+  chmod 600 /etc/msmtprc
 }
 
 # Check directory permissions
@@ -137,8 +186,6 @@ docker_setup_env
 if [ -z "$USERS_ALREADY_EXISTS" ]; then
   docker_verify_minimum_env
 fi
-
-pbs_start_fake_journald
 
 # Start api first in background
 if ! pgrep -f "proxmox-backup-api" > /dev/null 2>&1; then

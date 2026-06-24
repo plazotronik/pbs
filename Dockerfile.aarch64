@@ -1,11 +1,19 @@
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Europe/Moscow
 ARG PBS_VERSION=latest
+ARG PROXY=""
 
 
 FROM debian:trixie-slim AS builder
 ARG DEBIAN_FRONTEND
 ARG TZ
+ARG PROXY
+ARG HTTP_PROXY=${PROXY}
+ARG HTTPS_PROXY=${PROXY}
+ARG http_proxy=${PROXY}
+ARG https_proxy=${PROXY}
+ARG NO_PROXY=localhost,127.0.0.1,::1
+ARG no_proxy=localhost,127.0.0.1,::1
 
 RUN apt-get -qq update -y && \
     apt-get -qq dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold" && \
@@ -27,6 +35,13 @@ RUN if expr "$PBS_VERSION" : '[0-9.-][0-9.-]*' > /dev/null; \
 FROM debian:trixie-slim AS stage
 ARG DEBIAN_FRONTEND
 ARG TZ
+ARG PROXY
+ARG HTTP_PROXY=${PROXY}
+ARG HTTPS_PROXY=${PROXY}
+ARG http_proxy=${PROXY}
+ARG https_proxy=${PROXY}
+ARG NO_PROXY=localhost,127.0.0.1,::1
+ARG no_proxy=localhost,127.0.0.1,::1
 
 # Install dependencies
 RUN apt-get -qq update -y && \
@@ -42,7 +57,7 @@ RUN sed -i '/Components:/s/main$/main contrib/g' /etc/apt/sources.list.d/debian.
 RUN apt-get update && \
     apt-get install -y \
     --no-install-recommends \
-    zfsutils-linux socat
+    zfsutils-linux msmtp
 
 COPY --from=builder /proxmox-backup-arm64/packages /tmp/packages
 

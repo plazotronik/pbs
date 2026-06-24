@@ -1,6 +1,13 @@
 FROM debian:trixie-slim AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Europe/Moscow
+ARG PROXY=""
+ARG HTTP_PROXY=${PROXY}
+ARG HTTPS_PROXY=${PROXY}
+ARG http_proxy=${PROXY}
+ARG https_proxy=${PROXY}
+ARG NO_PROXY=localhost,127.0.0.1,::1
+ARG no_proxy=localhost,127.0.0.1,::1
 
 # Install dependencies
 RUN apt-get -qq update -y && \
@@ -32,7 +39,7 @@ RUN wget https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg -O /et
     proxmox-widget-toolkit \
     pve-xtermjs \
     zfsutils-linux \
-    socat
+    msmtp
 
 RUN cat <<EOF > /etc/apt/sources.list.d/pbs-enterprise.sources
 Types: deb

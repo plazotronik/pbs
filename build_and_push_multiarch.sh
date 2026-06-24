@@ -26,6 +26,7 @@ cd "$WORKDIR"
 # ==== BUILD ARM64 ====
 docker buildx build \
   --build-arg PBS_VERSION=${VERSION_FULL} \
+  --build-arg PROXY=${PROXY:-} \
   --platform linux/arm64/v8 \
   --provenance=false \
   --sbom=false \
@@ -37,6 +38,7 @@ docker buildx build \
 
 # ==== BUILD AMD64 ====
 docker buildx build \
+  --build-arg PROXY=${PROXY:-} \
   --platform linux/amd64 \
   --provenance=false \
   --sbom=false \
