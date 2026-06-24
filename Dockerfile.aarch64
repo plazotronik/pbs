@@ -42,7 +42,7 @@ RUN sed -i '/Components:/s/main$/main contrib/g' /etc/apt/sources.list.d/debian.
 RUN apt-get update && \
     apt-get install -y \
     --no-install-recommends \
-    zfsutils-linux
+    zfsutils-linux socat
 
 COPY --from=builder /proxmox-backup-arm64/packages /tmp/packages
 

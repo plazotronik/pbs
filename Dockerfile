@@ -31,7 +31,8 @@ RUN wget https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg -O /et
     proxmox-offline-mirror-helper \
     proxmox-widget-toolkit \
     pve-xtermjs \
-    zfsutils-linux
+    zfsutils-linux \
+    socat
 
 RUN cat <<EOF > /etc/apt/sources.list.d/pbs-enterprise.sources
 Types: deb
