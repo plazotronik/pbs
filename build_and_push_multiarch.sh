@@ -19,7 +19,7 @@ TAGS=("$VERSION_FULL" "$VERSION_MINOR" "$VERSION_MAJOR" "latest")
 
 # ==== CLONE ====
 rm -rf "$WORKDIR"
-git clone -b dev --depth=1 "$REPO_URL" "$WORKDIR"
+git clone --depth=1 "$REPO_URL" "$WORKDIR"
 cd "$WORKDIR"
 
 
